@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Extractos a Odoo</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Extractos bancarios → Odoo</h1>
+    <p class="sub">Convierte el extracto del banco en los templates de importación de Odoo. El archivo se procesa en el momento y no se guarda en el servidor.</p>
+  </header>
+
+  <main>
+    <section class="tarjeta">
+      <form id="form">
+        <div class="campo">
+          <label for="banco">Banco</label>
+          <select id="banco" required><option>Cargando…</option></select>
+          <div id="notaBanco" class="nota"></div>
+        </div>
+        <div class="campo">
+          <label for="archivo">Extracto (.pdf, .xls, .xlsx o .csv)</label>
+          <label id="zona" class="zona" for="archivo">
+            <span id="zonaTexto">Arrastrá el archivo acá o hacé clic para elegirlo</span>
+            <input type="file" id="archivo" accept=".pdf,.xls,.xlsx,.ods,.csv,.txt" required>
+          </label>
+        </div>
+        <div class="campo">
+          <label for="cuitPropio">CUIT propio a ignorar <span class="opcional">(opcional, varios separados por coma)</span></label>
+          <input type="text" id="cuitPropio" inputmode="numeric" placeholder="30-12345678-9" autocomplete="off">
+        </div>
+        <button type="submit" id="boton" disabled>Procesar</button>
+      </form>
+      <div id="mensaje" role="status"></div>
+    </section>
+
+    <section id="resultado" class="tarjeta" hidden>
+      <h2>Resultado</h2>
+      <p id="origen" class="nota"></p>
+      <div class="cifras" id="cifras"></div>
+      <div id="avisos"></div>
+
+      <div class="exportar">
+        <div class="campo">
+          <label for="estado">Estado de cuenta</label>
+          <input type="text" id="estado" autocomplete="off">
+        </div>
+        <div class="botones">
+          <button type="button" data-variante="con">Descargar template con estado de cuenta</button>
+          <button type="button" data-variante="sin" class="secundario">Descargar template sin estado de cuenta</button>
+        </div>
+        <p class="nota">Podés corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo).</p>
+      </div>
+
+      <div class="tabla">
+        <table>
+          <thead><tr><th>Fecha</th><th class="num">Importe</th><th>Etiqueta</th><th>partner_id</th></tr></thead>
+          <tbody id="filas"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
