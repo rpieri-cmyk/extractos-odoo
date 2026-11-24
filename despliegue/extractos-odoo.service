@@ -1,0 +1,24 @@
+# /etc/systemd/system/extractos-odoo.service
+# sudo systemctl daemon-reload && sudo systemctl enable --now extractos-odoo
+[Unit]
+Description=Extractos bancarios a Odoo
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/extractos-odoo
+ExecStart=/usr/bin/node server.js
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+Restart=on-failure
+User=www-data
+Group=www-data
+# La app no escribe en disco: se le niega escritura en todo el sistema
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
