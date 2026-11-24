@@ -1,0 +1,18 @@
+{
+  "name": "extractos-odoo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Convierte extractos bancarios en los templates de importación de extractos de Odoo, sin guardar archivos.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "probar": "node herramientas/probar.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pdfjs-dist": "4.10.38",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}
