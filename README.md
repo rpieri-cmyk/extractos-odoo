@@ -14,7 +14,7 @@ El partner_id es el CUIT que aparece en el concepto del movimiento. Se toma solo
 - Es un sitio estático: no hay servidor que reciba archivos. El extracto se lee y se convierte **dentro del navegador** de quien lo carga, y el .xlsx se genera ahí mismo para descargar.
 - No hay base de datos, sesiones ni historial.
 - La página tiene una política de seguridad (Content-Security-Policy) que solo le permite conectarse a sí misma y a los CDN de las librerías, así que no puede enviar el extracto a ningún otro lado.
-- En el navegador de cada persona quedan solo dos preferencias: el último banco elegido y el CUIT propio a ignorar.
+- En el navegador de cada persona queda solo una preferencia: el último banco elegido.
 - El `.gitignore` excluye .xls, .xlsx, .csv y .pdf para que nunca se suba un extracto al repositorio.
 
 ## Cómo se usa
