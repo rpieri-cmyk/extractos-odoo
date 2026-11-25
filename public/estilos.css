@@ -19,29 +19,7 @@
   --fila: #FAF8FC;
   --sombra: 0 2px 6px rgba(114, 75, 104, .22);
   --sombra-alta: 0 8px 18px rgba(114, 75, 104, .30);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fondo: #16131A;
-    --tarjeta: #201B24;
-    --panel: #2A2330;
-    --borde: #3B3242;
-    --borde-zona: #6E5A6D;
-    --titulo: #B8ABE0;
-    --acento: #E08BC4;
-    --boton: #9C6A8E;
-    --boton-texto: #FFFFFF;
-    --amarillo: #D9C63A;
-    --texto: #E9E2EC;
-    --suave: #B0A2AE;
-    --zona: #261F2B;
-    --error: #F28B82;
-    --alerta: #F2C063;
-    --ok: #7FCB9A;
-    --fila: #241E29;
-    --sombra: 0 2px 6px rgba(0, 0, 0, .45);
-    --sombra-alta: 0 8px 18px rgba(0, 0, 0, .55);
-  }
+  color-scheme: light; /* siempre claro, aunque el sistema esté en modo oscuro */
 }
 
 * { box-sizing: border-box; }
