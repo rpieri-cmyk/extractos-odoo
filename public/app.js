@@ -282,41 +282,49 @@
     $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Botón Descargar: abre la elección entre con y sin estado de cuenta
-  const descarga = $('descarga'), botonDescargar = $('botonDescargar'), menuDescarga = $('menuDescarga');
-  const opciones = () => [...menuDescarga.querySelectorAll('[role="menuitem"]')];
+  // Botón Descargar: abre una ventana para elegir la planilla (con o sin estado de cuenta)
+  const botonDescargar = $('botonDescargar'), dialogo = $('dialogoDescarga');
+  const opciones = () => [...dialogo.querySelectorAll('[data-variante]')];
   const errorDescarga = t => { $('mensajeDescarga').textContent = sinPunto(t); };
   function abrirDescarga() {
     errorDescarga('');
-    opciones().forEach((o, i) => o.style.setProperty('--i', i));
-    menuDescarga.hidden = false;
-    descarga.classList.add('abierto');
-    botonDescargar.setAttribute('aria-expanded', 'true');
-    opciones()[0].focus();
+    const estado = $('estado').value.trim();
+    $('opcionEstado').textContent = estado ? 'Estado de cuenta: ' + estado : 'Falta completar el Estado de cuenta';
+    dialogo.showModal();
+    dialogo.focus(); // ninguna opción queda marcada hasta pasar el mouse o usar Tab
   }
-  function cerrarDescarga(devolverFoco) {
-    if (menuDescarga.hidden) return;
-    menuDescarga.hidden = true;
-    descarga.classList.remove('abierto');
-    botonDescargar.setAttribute('aria-expanded', 'false');
-    if (devolverFoco) botonDescargar.focus();
+  const sinMovimiento = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cerrarDescarga() {
+    if (!dialogo.open || dialogo.classList.contains('saliendo')) return;
+    if (sinMovimiento()) { dialogo.close(); return; }
+    dialogo.classList.add('saliendo'); // animación de salida y después se cierra
+    setTimeout(() => { dialogo.classList.remove('saliendo'); dialogo.close(); }, 230);
   }
-  botonDescargar.addEventListener('click', () => (menuDescarga.hidden ? abrirDescarga() : cerrarDescarga(true)));
-  menuDescarga.addEventListener('keydown', e => {
-    const o = opciones(), i = o.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown') { e.preventDefault(); o[(i + 1) % o.length].focus(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); o[(i - 1 + o.length) % o.length].focus(); }
-    else if (e.key === 'Escape') { e.preventDefault(); cerrarDescarga(true); }
-    else if (e.key === 'Tab') cerrarDescarga(false);
+  dialogo.addEventListener('cancel', e => { e.preventDefault(); cerrarDescarga(); }); // tecla Escape
+  botonDescargar.addEventListener('click', abrirDescarga);
+  dialogo.querySelectorAll('[data-cerrar]').forEach(b => b.addEventListener('click', cerrarDescarga));
+  dialogo.addEventListener('click', e => { if (e.target === dialogo) cerrarDescarga(); }); // clic en el fondo
+  dialogo.addEventListener('close', () => {
+    const a = document.activeElement; // si el foco ya fue al Estado de cuenta, se deja ahí
+    if (!a || a === document.body || dialogo.contains(a)) botonDescargar.focus();
   });
-  document.addEventListener('pointerdown', e => { if (!descarga.contains(e.target)) cerrarDescarga(false); });
+  dialogo.addEventListener('keydown', e => {
+    const o = opciones(), i = o.indexOf(document.activeElement);
+    if (i < 0) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); o[(i + 1) % o.length].focus(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); o[(i - 1 + o.length) % o.length].focus(); }
+  });
 
   opciones().forEach(b => b.addEventListener('click', async () => {
     if (!datos) return;
     const variante = b.dataset.variante;
     const estado = $('estado').value.trim();
-    cerrarDescarga(false);
-    if (variante === 'con' && !estado) { errorDescarga('Completa el Estado de cuenta'); $('estado').focus(); return; }
+    cerrarDescarga();
+    if (variante === 'con' && !estado) {
+      errorDescarga('Completa el Estado de cuenta');
+      dialogo.addEventListener('close', () => setTimeout(() => $('estado').focus(), 0), { once: true });
+      return;
+    }
     botonDescargar.disabled = true;
     try {
       const conEstado = variante !== 'sin';

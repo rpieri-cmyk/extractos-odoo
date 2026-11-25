@@ -100,21 +100,9 @@
           <input type="text" id="estado" autocomplete="off">
         </div>
         <div class="descarga" id="descarga">
-          <button type="button" class="boton boton-principal boton-descargar" id="botonDescargar"
-                  aria-haspopup="menu" aria-expanded="false" aria-controls="menuDescarga">
+          <button type="button" class="boton boton-principal boton-descargar" id="botonDescargar" aria-haspopup="dialog">
             Descargar
-            <svg class="chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <div class="menu-descarga" id="menuDescarga" role="menu" aria-label="Elegir planilla" hidden>
-            <button type="button" role="menuitem" data-variante="con">
-              <strong>Con estado de cuenta</strong>
-              <small>Estado de cuenta · Fecha · Importe · Etiqueta · partner_id</small>
-            </button>
-            <button type="button" role="menuitem" data-variante="sin">
-              <strong>Sin estado de cuenta</strong>
-              <small>Fecha · Importe · Etiqueta · partner_id</small>
-            </button>
-          </div>
         </div>
         <p id="mensajeDescarga" class="mensaje-descarga" role="status"></p>
         <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo)</p>
@@ -140,6 +128,36 @@
       </div>
     </section>
   </main>
+
+  <!-- Ventana para elegir la planilla a descargar -->
+  <dialog id="dialogoDescarga" class="dialogo" aria-labelledby="dialogoTitulo" tabindex="-1">
+    <button type="button" class="dialogo-cerrar" data-cerrar aria-label="Cerrar">
+      <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <p class="antetitulo">Descarga</p>
+    <h2 id="dialogoTitulo">¿Qué planilla quieres?</h2>
+    <p class="dialogo-sub">Las dos traen los mismos movimientos; cambia solo la primera columna</p>
+    <div class="opciones">
+      <button type="button" class="opcion" data-variante="con">
+        <span class="opcion-icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3.5v11m0 0-4.5-4.5m4.5 4.5 4.5-4.5M5 16.5v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <strong>Con estado de cuenta</strong>
+        <small>Estado de cuenta · Fecha · Importe · Etiqueta · partner_id</small>
+        <em id="opcionEstado"></em>
+      </button>
+      <button type="button" class="opcion" data-variante="sin">
+        <span class="opcion-icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3.5v11m0 0-4.5-4.5m4.5 4.5 4.5-4.5M5 16.5v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <strong>Sin estado de cuenta</strong>
+        <small>Fecha · Importe · Etiqueta · partner_id</small>
+      </button>
+    </div>
+    <div class="dialogo-pie">
+      <button type="button" class="enlace" data-cerrar>Cancelar</button>
+    </div>
+  </dialog>
 
   <footer>
     <span>Extractos bancarios → Odoo</span>

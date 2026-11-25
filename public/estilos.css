@@ -135,7 +135,6 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .select-lista li.activa { background: var(--zona); padding-left: 18px; }
 .select-lista li[aria-selected="true"] { background: #B19DB0; color: #FFFFFF; font-weight: 600; }
 .select-lista li[aria-selected="true"] small { color: #FFFFFF; }
-.select-lista li[aria-selected="true"]::after { content: "✓"; font-size: 13px; }
 .select-lista li[aria-selected="true"].activa { padding-left: 18px; }
 @keyframes desplegar {
   from { opacity: 0; transform: translateY(-10px) scaleY(.85); }
@@ -182,26 +181,81 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
   text-transform: uppercase; letter-spacing: .1em;
 }
 
-/* Descargar: un solo botón que abre la elección del template */
-.descarga { position: relative; display: inline-block; }
-.boton-descargar .chev { transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
-.descarga.abierto .boton-descargar .chev { transform: rotate(180deg); }
-.menu-descarga {
-  position: absolute; z-index: 20; left: 0; top: calc(100% + 8px); width: max(100%, 360px); padding: 6px;
-  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
-  box-shadow: 0 14px 32px rgba(114, 75, 104, .22); transform-origin: top left;
-  animation: desplegar .32s cubic-bezier(.34, 1.56, .64, 1);
+/* Descargar: un solo botón que abre la ventana para elegir la planilla */
+.descarga { display: inline-block; }
+
+.dialogo {
+  width: min(560px, calc(100% - 32px)); max-width: none; padding: 28px 26px 18px; margin: auto;
+  overflow-x: hidden; overflow-y: auto; /* las tarjetas entran desde los costados sin generar barra */
+  color: var(--texto); background: var(--tarjeta); border: 0; border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(60, 30, 70, .35);
 }
-.menu-descarga button {
-  display: block; width: 100%; padding: 10px 12px; text-align: left; font: inherit; color: var(--texto);
-  background: none; border: 0; border-radius: 8px; cursor: pointer;
-  opacity: 0; animation: aparecer .28s ease forwards; animation-delay: calc(var(--i, 0) * 60ms);
-  transition: background .15s, color .15s, padding-left .2s ease;
+.dialogo:focus { outline: none; }
+/* Entra girando en 3D desde abajo; sale cayendo y desvaneciéndose */
+.dialogo[open] { animation: dialogo-entra .55s cubic-bezier(.22, 1.2, .36, 1); transform-origin: 50% 100%; }
+.dialogo.saliendo { animation: dialogo-sale .24s ease-in forwards; }
+.dialogo::backdrop { background: rgba(60, 35, 70, .45); backdrop-filter: blur(3px); animation: fondo-entra .35s ease; }
+.dialogo.saliendo::backdrop { animation: fondo-sale .24s ease-in forwards; }
+@keyframes dialogo-entra {
+  0%   { opacity: 0; transform: perspective(900px) translateY(60px) rotateX(-28deg) scale(.9); }
+  60%  { opacity: 1; transform: perspective(900px) translateY(-6px) rotateX(4deg) scale(1.01); }
+  100% { opacity: 1; transform: none; }
 }
-.menu-descarga strong { display: block; font-size: 14px; font-weight: 600; }
-.menu-descarga small { display: block; margin-top: 2px; font-size: 11px; color: var(--suave); transition: color .15s; }
-.menu-descarga button:hover, .menu-descarga button:focus-visible { background: #B19DB0; color: #FFFFFF; padding-left: 18px; outline: none; }
-.menu-descarga button:hover small, .menu-descarga button:focus-visible small { color: #FFFFFF; }
+@keyframes dialogo-sale { to { opacity: 0; transform: translateY(40px) rotate(2deg) scale(.94); } }
+@keyframes fondo-entra { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fondo-sale { to { opacity: 0; } }
+.dialogo h2 { font-size: 24px; margin: 0; }
+.dialogo-sub { margin: 6px 0 20px; font-size: 12px; color: var(--suave); }
+.dialogo-cerrar {
+  position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 32px; height: 32px;
+  color: var(--suave); background: none; border: 0; border-radius: 50%; cursor: pointer; transition: background .2s, color .2s, transform .3s;
+}
+.dialogo-cerrar:hover { background: var(--panel); color: var(--acento); transform: rotate(90deg); }
+
+.opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.opcion {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 18px 16px;
+  font: inherit; text-align: left; color: var(--texto); background: var(--zona); cursor: pointer;
+  border: 1.5px solid var(--borde); border-radius: 14px;
+  /* backwards: deja libre el hover al terminar la entrada */
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s ease, background .2s, color .2s, border-color .2s;
+}
+/* Cada tarjeta entra desde su costado, girando un poco */
+.opcion:nth-child(1) { animation: desde-izq .55s cubic-bezier(.34, 1.56, .64, 1) .18s backwards; }
+.opcion:nth-child(2) { animation: desde-der .55s cubic-bezier(.34, 1.56, .64, 1) .26s backwards; }
+@keyframes desde-izq { from { opacity: 0; transform: translateX(-40px) rotate(-6deg); } to { opacity: 1; transform: none; } }
+@keyframes desde-der { from { opacity: 0; transform: translateX(40px) rotate(6deg); } to { opacity: 1; transform: none; } }
+@keyframes rebote-icono {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  30% { transform: translateY(-7px) rotate(-8deg); }
+  55% { transform: translateY(0) rotate(4deg); }
+  75% { transform: translateY(-3px) rotate(0); }
+}
+.opcion-icono {
+  display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 4px; border-radius: 50%; color: #fff;
+  background: linear-gradient(135deg, var(--titulo) 0%, var(--acento) 100%); transition: transform .25s;
+}
+.opcion strong { font-size: 15px; font-weight: 600; color: var(--titulo); transition: color .2s; }
+.opcion small { font-size: 11px; line-height: 1.45; color: var(--suave); transition: color .2s; }
+.opcion em { font-style: normal; font-size: 11px; color: var(--acento); transition: color .2s; }
+.opcion em:empty { display: none; }
+/* Al pasar el mouse: la tarjeta se inclina hacia su lado y el ícono rebota */
+.opcion:hover, .opcion:focus-visible {
+  background: #B19DB0; border-color: #B19DB0; box-shadow: 0 16px 28px rgba(114, 75, 104, .32); outline: none;
+}
+.opcion:nth-child(1):hover, .opcion:nth-child(1):focus-visible { transform: perspective(700px) translateY(-6px) rotateY(6deg) rotate(-1.5deg); }
+.opcion:nth-child(2):hover, .opcion:nth-child(2):focus-visible { transform: perspective(700px) translateY(-6px) rotateY(-6deg) rotate(1.5deg); }
+.opcion:hover strong, .opcion:hover small, .opcion:hover em,
+.opcion:focus-visible strong, .opcion:focus-visible small, .opcion:focus-visible em { color: #FFFFFF; }
+.opcion:hover .opcion-icono, .opcion:focus-visible .opcion-icono { animation: rebote-icono .6s ease; }
+.opcion:active { transform: scale(.97); transition-duration: .08s; }
+
+.dialogo-pie { display: flex; justify-content: flex-end; margin-top: 16px; }
+.enlace {
+  padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600; color: var(--suave);
+  background: none; border: 0; border-radius: 8px; cursor: pointer; transition: color .2s, background .2s;
+}
+.enlace:hover { color: var(--acento); background: var(--panel); }
 .mensaje-descarga { margin: 8px 0 0; font-size: 13px; color: var(--error); }
 .mensaje-descarga:empty { display: none; }
 
@@ -226,7 +280,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
   .boton, .zona-icono, .guia li > span, .pasos span { transition: none; }
   .guia li:hover > span, .pasos li:hover span, .guia li:hover > div, .pasos li:hover { transform: none; }
   .guia li > div, .pasos li { transition: none; }
-  .select-lista, .select-lista li, .menu-descarga, .menu-descarga button { animation: none; opacity: 1; }
+  .select-lista, .select-lista li, .opcion, .dialogo[open], .dialogo::backdrop, .opcion-icono { animation: none !important; opacity: 1; }
+  .opcion:hover, .opcion:focus-visible, .opcion:active { transform: none !important; }
   .fila-procesar, .fila-procesar.visible { transition: none; transform: none; }
   .select::after, .select-lista li { transition: none; }
   .boton:hover:not(:disabled), .zona:hover .boton-claro, .zona:hover .zona-icono { transform: none; }
@@ -289,7 +344,8 @@ footer {
   .zona { flex-wrap: wrap; }
   .zona .boton-claro { width: 100%; }
   .fila-procesar .boton, .descarga, .boton-descargar { width: 100%; min-width: 0; }
-  .menu-descarga { width: 100%; }
+  .opciones { grid-template-columns: 1fr; }
+  .dialogo { padding: 24px 18px 14px; }
   .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cifra strong { font-size: 14px; }
   .privacidad { grid-template-columns: 1fr; gap: 18px; }
