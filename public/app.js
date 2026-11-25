@@ -61,7 +61,8 @@
     .catch(e => mensaje(e.message, 'error'));
 
   $('banco').addEventListener('change', notaBanco);
-  $('cuitPropio').value = leer('cuitPropio');
+  // Versiones anteriores guardaban el CUIT propio: se borra para no dejarlo en el navegador
+  try { localStorage.removeItem('cuitPropio'); } catch (e) { /* sin almacenamiento */ }
 
   // Zona para arrastrar el archivo
   const zona = $('zona');
@@ -93,15 +94,13 @@
     if (!f) { mensaje('Elige un archivo primero.', 'error'); return; }
     paso(1);
     const banco = $('banco').value;
-    const cuitPropio = $('cuitPropio').value.trim();
     guardar('ultimoBanco', banco);
-    guardar('cuitPropio', cuitPropio);
     $('boton').disabled = true;
     $('resultado').hidden = true;
     datos = null;
     mensaje('Procesando ' + f.name + ' (' + banco + ')…');
     try {
-      datos = await procesar(f, banco, cuitPropio);
+      datos = await procesar(f, banco);
       mostrarResultado();
       mensaje('');
     } catch (err) {
@@ -112,12 +111,12 @@
   });
 
   // Todo ocurre en esta pestaña: el archivo se lee en memoria y no se envía a ningún servidor.
-  async function procesar(f, banco, cuitPropioTexto) {
+  async function procesar(f, banco) {
     const tipo = Lectores.tipoArchivo(f.name);
     if (!tipo) throw new Error('Formato no soportado. Sube el extracto en .pdf, .xls, .xlsx o .csv.');
     if (!f.size) throw new Error('El archivo está vacío.');
     const perfil = bancos.find(b => b.nombre === banco) || bancos[0];
-    const cuitPropio = cuitPropioTexto.replace(/[^\d,]/g, '');
+    const cuitPropio = ''; // el CUIT del titular se detecta solo en los PDF que lo traen
     const bytes = new Uint8Array(await f.arrayBuffer());
     let r;
     try {

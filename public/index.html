@@ -64,13 +64,8 @@
             <input type="file" id="archivo" accept=".pdf,.xls,.xlsx,.ods,.csv,.txt" required>
           </label>
 
-          <div class="campo">
-            <label for="cuitPropio">CUIT propio a ignorar <span class="opcional">Opcional</span></label>
-            <div class="fila-cuit">
-              <input type="text" id="cuitPropio" inputmode="numeric" placeholder="30-12345678-9" autocomplete="off">
-              <button type="submit" id="boton" class="boton" disabled>Procesar extracto</button>
-            </div>
-            <div class="ayuda">Puedes indicar varios CUIT separados por coma.</div>
+          <div class="fila-procesar">
+            <button type="submit" id="boton" class="boton" disabled>Procesar extracto</button>
           </div>
         </form>
         <div id="mensaje" role="status"></div>
@@ -123,7 +118,7 @@
       </div>
       <div class="priv-der">
         <strong>Sin historial ni almacenamiento de extractos.</strong>
-        <p>Solo se recuerdan el banco y el CUIT propio en tu navegador para la próxima vez.</p>
+        <p>Solo se recuerda en tu navegador el último banco elegido, para la próxima vez.</p>
       </div>
     </section>
   </main>

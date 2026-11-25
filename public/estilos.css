@@ -119,9 +119,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .zona.con-archivo .zona-texto strong { color: var(--acento); font-weight: 600; }
 .zona input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-.fila-cuit { display: flex; gap: 18px; }
-.fila-cuit input { flex: 1; min-width: 0; }
-.fila-cuit .boton { flex: 0 0 auto; width: 210px; }
+.fila-procesar { display: flex; justify-content: flex-end; }
+.fila-procesar .boton { width: 210px; }
 
 /* Botones: se elevan al pasar el mouse y se hunden al hacer clic */
 .boton {
@@ -153,10 +152,10 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 /* Resultado */
 .resultado { margin-top: 28px; padding: 24px 22px; }
 .resultado h2 { font-size: 24px; }
-.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 18px 0; }
+.cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
 .cifra { background: var(--panel); border-radius: 10px; padding: 10px 14px; }
 .cifra span { display: block; font-size: 11px; color: var(--suave); }
-.cifra strong { font-size: 17px; font-weight: 600; color: var(--texto); font-variant-numeric: tabular-nums; }
+.cifra strong { font-size: 16px; font-weight: 600; color: var(--texto); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .negativo, .cifra strong.negativo, .cifra.negativo strong { color: var(--error); }
 #avisos p, #avisos ul { margin: 4px 0; font-size: 13px; }
 .ok { color: var(--ok); } .alerta { color: var(--alerta); } .info { color: var(--suave); }
@@ -202,9 +201,9 @@ footer {
   h1 { font-size: 30px; }
   .zona { flex-wrap: wrap; }
   .zona .boton-claro { width: 100%; }
-  .fila-cuit { flex-direction: column; gap: 12px; }
-  .fila-cuit input { flex: none; }
-  .fila-cuit .boton { width: 100%; }
+  .fila-procesar .boton { width: 100%; }
+  .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cifra strong { font-size: 14px; }
   .privacidad { grid-template-columns: 1fr; gap: 18px; }
   .priv-der { border-left: 0; border-top: 1px solid var(--borde-zona); padding: 16px 0 0; }
   footer { flex-direction: column; gap: 4px; }
