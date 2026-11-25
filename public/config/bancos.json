@@ -6,7 +6,8 @@
     "Usar debito y credito si vienen en columnas separadas; si hay una sola columna con signo, usar importe.",
     "invertir: true si el banco muestra los débitos en positivo en la columna importe.",
     "filaEncabezado: solo hace falta si se usan letras (cantidad de filas a saltear antes de los movimientos).",
-    "estado: si no empieza con 'Probado', la app avisa que hay que revisar el resultado.",
+    "estado: solo de referencia interna (no se muestra en la página).",
+    "notas: texto que se muestra debajo del banco elegido.",
     "Los PDF se leen con lectores propios para los bancos cuyo nombre contiene 'Ciudad' o 'Provincia'."
   ],
   "bancos": [
@@ -32,19 +33,19 @@
       "nombre": "Nación", "filaEncabezado": 9,
       "fecha": "A", "concepto": "E+D", "cpbte": "",
       "debito": "", "credito": "", "importe": "C", "invertir": false,
-      "estado": "Sin probar", "notas": "Columnas tomadas de la macro FormatoNacion. Confirmar con un extracto real."
+      "estado": "Sin probar", "notas": "Excel del extracto de Banco Nación."
     },
     {
       "nombre": "Provincia", "filaEncabezado": 5,
       "fecha": "B", "concepto": "C", "cpbte": "",
       "debito": "", "credito": "", "importe": "D", "invertir": false,
-      "estado": "Probado (PDF)", "notas": "PDF probado. Excel/CSV con columnas de la macro FormatoProvincia, sin probar."
+      "estado": "Probado (PDF)", "notas": "PDF del extracto informativo, o Excel/CSV."
     },
     {
       "nombre": "Automático (detectar encabezados)", "filaEncabezado": 0,
       "fecha": "fecha", "concepto": "concepto|descripcion|detalle|movimiento", "cpbte": "comprobante|cpbte|referencia|nro",
       "debito": "debito|debe|egreso", "credito": "credito|haber|ingreso", "importe": "importe|monto", "invertir": false,
-      "estado": "Genérico", "notas": "Busca encabezados habituales. Sirve para probar un banco nuevo."
+      "estado": "Genérico", "notas": "Busca los encabezados habituales (fecha, concepto, importe) en cualquier planilla."
     }
   ]
 }
