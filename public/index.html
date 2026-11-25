@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#F8F9FB">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700&display=swap">
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -69,8 +69,8 @@
             <input type="file" id="archivo" accept=".pdf,.xls,.xlsx,.ods,.csv,.txt" required>
           </label>
 
-          <div class="fila-procesar">
-            <button type="submit" id="boton" class="boton" disabled>Procesar extracto</button>
+          <div class="fila-procesar" id="filaProcesar">
+            <button type="submit" id="boton" class="boton boton-principal" disabled>Procesar extracto</button>
           </div>
         </form>
         <div id="mensaje" role="status"></div>
@@ -89,7 +89,7 @@
 
     <section id="resultado" class="tarjeta resultado" hidden>
       <p class="antetitulo">Revisa</p>
-      <h2>Resultado</h2>
+      <h2>Así quedó tu extracto</h2>
       <p id="origen" class="ayuda"></p>
       <div class="cifras" id="cifras"></div>
       <div id="avisos"></div>
@@ -99,10 +99,24 @@
           <label for="estado">Estado de cuenta</label>
           <input type="text" id="estado" autocomplete="off">
         </div>
-        <div class="botones">
-          <button type="button" class="boton" data-variante="con">Descargar con estado de cuenta</button>
-          <button type="button" class="boton boton-sec" data-variante="sin">Descargar sin estado de cuenta</button>
+        <div class="descarga" id="descarga">
+          <button type="button" class="boton boton-principal boton-descargar" id="botonDescargar"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="menuDescarga">
+            Descargar
+            <svg class="chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="menu-descarga" id="menuDescarga" role="menu" aria-label="Elegir template" hidden>
+            <button type="button" role="menuitem" data-variante="con">
+              <strong>Con estado de cuenta</strong>
+              <small>Estado de cuenta · Fecha · Importe · Etiqueta · partner_id</small>
+            </button>
+            <button type="button" role="menuitem" data-variante="sin">
+              <strong>Sin estado de cuenta</strong>
+              <small>Fecha · Importe · Etiqueta · partner_id</small>
+            </button>
+          </div>
         </div>
+        <p id="mensajeDescarga" class="mensaje-descarga" role="status"></p>
         <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo)</p>
       </div>
 

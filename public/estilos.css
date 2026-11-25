@@ -164,8 +164,46 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .zona.con-archivo .zona-texto strong { color: var(--acento); font-weight: 600; }
 .zona input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-.fila-procesar { display: flex; justify-content: flex-end; }
-.fila-procesar .boton { width: 210px; }
+/* Botón Procesar: aparece recién cuando hay un archivo cargado */
+.fila-procesar {
+  display: flex; justify-content: center; max-height: 0; padding: 0; opacity: 0; overflow: hidden;
+  visibility: hidden; transform: translateY(-10px);
+  transition: max-height .45s ease, padding .45s ease, opacity .35s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1), visibility 0s linear .45s;
+}
+.fila-procesar.visible {
+  max-height: 100px; padding: 6px 0 10px; opacity: 1; visibility: visible; transform: none;
+  transition: max-height .45s ease, padding .45s ease, opacity .35s ease .05s, transform .45s cubic-bezier(.34, 1.56, .64, 1), visibility 0s;
+}
+
+/* Botones principales (Procesar y Descargar): otra tipografía y en mayúsculas */
+.boton.boton-principal {
+  height: 46px; min-width: 260px; padding: 0 32px; gap: 10px;
+  font-family: Montserrat, Inter, system-ui, sans-serif; font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+}
+
+/* Descargar: un solo botón que abre la elección del template */
+.descarga { position: relative; display: inline-block; }
+.boton-descargar .chev { transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.descarga.abierto .boton-descargar .chev { transform: rotate(180deg); }
+.menu-descarga {
+  position: absolute; z-index: 20; left: 0; top: calc(100% + 8px); width: max(100%, 360px); padding: 6px;
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  box-shadow: 0 14px 32px rgba(114, 75, 104, .22); transform-origin: top left;
+  animation: desplegar .32s cubic-bezier(.34, 1.56, .64, 1);
+}
+.menu-descarga button {
+  display: block; width: 100%; padding: 10px 12px; text-align: left; font: inherit; color: var(--texto);
+  background: none; border: 0; border-radius: 8px; cursor: pointer;
+  opacity: 0; animation: aparecer .28s ease forwards; animation-delay: calc(var(--i, 0) * 60ms);
+  transition: background .15s, color .15s, padding-left .2s ease;
+}
+.menu-descarga strong { display: block; font-size: 14px; font-weight: 600; }
+.menu-descarga small { display: block; margin-top: 2px; font-size: 11px; color: var(--suave); transition: color .15s; }
+.menu-descarga button:hover, .menu-descarga button:focus-visible { background: #B19DB0; color: #FFFFFF; padding-left: 18px; outline: none; }
+.menu-descarga button:hover small, .menu-descarga button:focus-visible small { color: #FFFFFF; }
+.mensaje-descarga { margin: 8px 0 0; font-size: 13px; color: var(--error); }
+.mensaje-descarga:empty { display: none; }
 
 /* Botones: se elevan al pasar el mouse y se hunden al hacer clic */
 .boton {
@@ -188,7 +226,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
   .boton, .zona-icono, .guia li > span, .pasos span { transition: none; }
   .guia li:hover > span, .pasos li:hover span, .guia li:hover > div, .pasos li:hover { transform: none; }
   .guia li > div, .pasos li { transition: none; }
-  .select-lista, .select-lista li { animation: none; opacity: 1; }
+  .select-lista, .select-lista li, .menu-descarga, .menu-descarga button { animation: none; opacity: 1; }
+  .fila-procesar, .fila-procesar.visible { transition: none; transform: none; }
   .select::after, .select-lista li { transition: none; }
   .boton:hover:not(:disabled), .zona:hover .boton-claro, .zona:hover .zona-icono { transform: none; }
 }
@@ -249,7 +288,8 @@ footer {
   h1 { font-size: 30px; }
   .zona { flex-wrap: wrap; }
   .zona .boton-claro { width: 100%; }
-  .fila-procesar .boton { width: 100%; }
+  .fila-procesar .boton, .descarga, .boton-descargar { width: 100%; min-width: 0; }
+  .menu-descarga { width: 100%; }
   .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cifra strong { font-size: 14px; }
   .privacidad { grid-template-columns: 1fr; gap: 18px; }

@@ -154,6 +154,7 @@
     $('zonaTitulo').textContent = f ? f.name : 'Arrastra tu extracto aquí';
     $('zonaSub').textContent = f ? (f.size / 1024).toFixed(0) + ' KB · Listo para procesar' : '.pdf, .xls, .xlsx o .csv · Un archivo a la vez';
     zona.classList.toggle('con-archivo', !!f);
+    $('filaProcesar').classList.toggle('visible', !!f); // el botón aparece recién con un archivo cargado
   };
 
   // Indicador de pasos: 1 Carga, 2 Revisa, 3 Descarga
@@ -281,12 +282,42 @@
     $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  document.querySelectorAll('[data-variante]').forEach(b => b.addEventListener('click', async () => {
+  // Botón Descargar: abre la elección entre con y sin estado de cuenta
+  const descarga = $('descarga'), botonDescargar = $('botonDescargar'), menuDescarga = $('menuDescarga');
+  const opciones = () => [...menuDescarga.querySelectorAll('[role="menuitem"]')];
+  const errorDescarga = t => { $('mensajeDescarga').textContent = sinPunto(t); };
+  function abrirDescarga() {
+    errorDescarga('');
+    opciones().forEach((o, i) => o.style.setProperty('--i', i));
+    menuDescarga.hidden = false;
+    descarga.classList.add('abierto');
+    botonDescargar.setAttribute('aria-expanded', 'true');
+    opciones()[0].focus();
+  }
+  function cerrarDescarga(devolverFoco) {
+    if (menuDescarga.hidden) return;
+    menuDescarga.hidden = true;
+    descarga.classList.remove('abierto');
+    botonDescargar.setAttribute('aria-expanded', 'false');
+    if (devolverFoco) botonDescargar.focus();
+  }
+  botonDescargar.addEventListener('click', () => (menuDescarga.hidden ? abrirDescarga() : cerrarDescarga(true)));
+  menuDescarga.addEventListener('keydown', e => {
+    const o = opciones(), i = o.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); o[(i + 1) % o.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); o[(i - 1 + o.length) % o.length].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); cerrarDescarga(true); }
+    else if (e.key === 'Tab') cerrarDescarga(false);
+  });
+  document.addEventListener('pointerdown', e => { if (!descarga.contains(e.target)) cerrarDescarga(false); });
+
+  opciones().forEach(b => b.addEventListener('click', async () => {
     if (!datos) return;
     const variante = b.dataset.variante;
     const estado = $('estado').value.trim();
-    if (variante === 'con' && !estado) { mensaje('Completa el Estado de cuenta', 'error'); $('estado').focus(); return; }
-    b.disabled = true;
+    cerrarDescarga(false);
+    if (variante === 'con' && !estado) { errorDescarga('Completa el Estado de cuenta'); $('estado').focus(); return; }
+    botonDescargar.disabled = true;
     try {
       const conEstado = variante !== 'sin';
       const movs = datos.movs.map(m => ({
@@ -305,9 +336,9 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
       paso(3);
     } catch (err) {
-      mensaje(err.message, 'error');
+      errorDescarga(err.message);
     } finally {
-      b.disabled = false;
+      botonDescargar.disabled = false;
     }
   }));
 })();
