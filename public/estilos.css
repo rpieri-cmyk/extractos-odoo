@@ -78,6 +78,10 @@ h2 { margin: 0; color: var(--titulo); font-weight: 500; }
   box-shadow: 0 4px 10px rgba(201, 181, 32, .45);
 }
 .guia li:hover strong { color: var(--acento); }
+/* El texto del paso se corre hacia la derecha al pasar el mouse */
+.guia li > div, .pasos li { transition: transform .25s ease; }
+.guia li:hover > div { transform: translateX(6px); }
+.pasos li:hover { transform: translateX(3px); }
 .guia strong { transition: color .2s ease; }
 .guia strong { display: block; color: var(--texto); font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 .nota-conv { margin: 14px 0 0; font-size: 12px; color: var(--suave); }
@@ -141,7 +145,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .boton:disabled { opacity: .55; cursor: default; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   .boton, .zona-icono, .guia li > span, .pasos span { transition: none; }
-  .guia li:hover > span, .pasos li:hover span { transform: none; }
+  .guia li:hover > span, .pasos li:hover span, .guia li:hover > div, .pasos li:hover { transform: none; }
+  .guia li > div, .pasos li { transition: none; }
   .boton:hover:not(:disabled), .zona:hover .boton-claro, .zona:hover .zona-icono { transform: none; }
 }
 
