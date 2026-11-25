@@ -68,6 +68,17 @@ h2 { margin: 0; color: var(--titulo); font-weight: 500; }
   flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
   background: var(--tarjeta); color: var(--texto); font-size: 11px; font-weight: 600;
 }
+/* Números de los pasos: al pasar el mouse suben, crecen y se ponen amarillos */
+.guia li > span, .pasos span {
+  transition: transform .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.guia li { cursor: default; }
+.guia li:hover > span, .pasos li:hover span {
+  background: var(--amarillo); color: #3A3000; transform: translateY(-3px) scale(1.15);
+  box-shadow: 0 4px 10px rgba(201, 181, 32, .45);
+}
+.guia li:hover strong { color: var(--acento); }
+.guia strong { transition: color .2s ease; }
 .guia strong { display: block; color: var(--texto); font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 .nota-conv { margin: 14px 0 0; font-size: 12px; color: var(--suave); }
 
@@ -130,7 +141,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .boton:focus-visible { outline: 2px solid var(--amarillo); outline-offset: 2px; }
 .boton:disabled { opacity: .55; cursor: default; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
-  .boton, .zona-icono { transition: none; }
+  .boton, .zona-icono, .guia li > span, .pasos span { transition: none; }
+  .guia li:hover > span, .pasos li:hover span { transform: none; }
   .boton:hover:not(:disabled), .zona:hover .boton-claro, .zona:hover .zona-icono { transform: none; }
 }
 
