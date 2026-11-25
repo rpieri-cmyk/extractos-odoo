@@ -15,37 +15,37 @@
       "nombre": "Credicoop", "filaEncabezado": 0,
       "fecha": "Fecha", "concepto": "Concepto", "cpbte": "cpbte|comprobante",
       "debito": "Débito", "credito": "Crédito", "importe": "", "invertir": false,
-      "estado": "Probado", "notas": "SaldMovs de Credicoop (.xls)."
+      "estado": "Probado", "notas": "SaldMovs de Credicoop (.xls)"
     },
     {
       "nombre": "Ciudad", "filaEncabezado": 0,
       "fecha": "fecha", "concepto": "descripcion", "cpbte": "comprobante",
       "debito": "", "credito": "", "importe": "monto|importe", "invertir": false,
-      "estado": "Probado", "notas": "Excel del home banking y PDF del resumen de cuenta."
+      "estado": "Probado", "notas": "Excel del home banking y PDF del resumen de cuenta"
     },
     {
       "nombre": "Ciudad (home banking)", "filaEncabezado": 0,
       "fecha": "fecha", "concepto": "descripcion", "cpbte": "comprobante",
       "debito": "", "credito": "", "importe": "monto|importe", "invertir": false,
-      "estado": "Probado", "notas": "Excel del home banking: Cuenta, Fecha, Monto, N° de Comprobante, Descripción, Saldo."
+      "estado": "Probado", "notas": "Excel del home banking: Cuenta, Fecha, Monto, N° de Comprobante, Descripción, Saldo"
     },
     {
       "nombre": "Nación", "filaEncabezado": 9,
       "fecha": "A", "concepto": "E+D", "cpbte": "",
       "debito": "", "credito": "", "importe": "C", "invertir": false,
-      "estado": "Sin probar", "notas": "Excel del extracto de Banco Nación."
+      "estado": "Sin probar", "notas": "Excel del extracto de Banco Nación"
     },
     {
       "nombre": "Provincia", "filaEncabezado": 5,
       "fecha": "B", "concepto": "C", "cpbte": "",
       "debito": "", "credito": "", "importe": "D", "invertir": false,
-      "estado": "Probado (PDF)", "notas": "PDF del extracto informativo, o Excel/CSV."
+      "estado": "Probado (PDF)", "notas": "PDF del extracto informativo, o Excel/CSV"
     },
     {
       "nombre": "Automático (detectar encabezados)", "filaEncabezado": 0,
       "fecha": "fecha", "concepto": "concepto|descripcion|detalle|movimiento", "cpbte": "comprobante|cpbte|referencia|nro",
       "debito": "debito|debe|egreso", "credito": "credito|haber|ingreso", "importe": "importe|monto", "invertir": false,
-      "estado": "Genérico", "notas": "Busca los encabezados habituales (fecha, concepto, importe) en cualquier planilla."
+      "estado": "Genérico", "notas": "Busca los encabezados habituales (fecha, concepto, importe) en cualquier planilla"
     }
   ]
 }
