@@ -1,0 +1,50 @@
+{
+  "_ayuda": [
+    "Un objeto por banco, en el orden en que aparecen en la lista.",
+    "fecha, concepto, cpbte, debito, credito, importe: letra de columna (A, B, C...) o nombre de encabezado.",
+    "Varios nombres posibles se separan con | (ej.: debito|debe). Concepto puede unir columnas con + (ej.: E+D).",
+    "Usar debito y credito si vienen en columnas separadas; si hay una sola columna con signo, usar importe.",
+    "invertir: true si el banco muestra los débitos en positivo en la columna importe.",
+    "filaEncabezado: solo hace falta si se usan letras (cantidad de filas a saltear antes de los movimientos).",
+    "estado: si no empieza con 'Probado', la app avisa que hay que revisar el resultado.",
+    "Los PDF se leen con lectores propios para los bancos cuyo nombre contiene 'Ciudad' o 'Provincia'."
+  ],
+  "bancos": [
+    {
+      "nombre": "Credicoop", "filaEncabezado": 0,
+      "fecha": "Fecha", "concepto": "Concepto", "cpbte": "cpbte|comprobante",
+      "debito": "Débito", "credito": "Crédito", "importe": "", "invertir": false,
+      "estado": "Probado", "notas": "SaldMovs de Credicoop (.xls)."
+    },
+    {
+      "nombre": "Ciudad", "filaEncabezado": 0,
+      "fecha": "fecha", "concepto": "descripcion", "cpbte": "comprobante",
+      "debito": "", "credito": "", "importe": "monto|importe", "invertir": false,
+      "estado": "Probado", "notas": "Excel del home banking y PDF del resumen de cuenta."
+    },
+    {
+      "nombre": "Ciudad (home banking)", "filaEncabezado": 0,
+      "fecha": "fecha", "concepto": "descripcion", "cpbte": "comprobante",
+      "debito": "", "credito": "", "importe": "monto|importe", "invertir": false,
+      "estado": "Probado", "notas": "Excel del home banking: Cuenta, Fecha, Monto, N° de Comprobante, Descripción, Saldo."
+    },
+    {
+      "nombre": "Nación", "filaEncabezado": 9,
+      "fecha": "A", "concepto": "E+D", "cpbte": "",
+      "debito": "", "credito": "", "importe": "C", "invertir": false,
+      "estado": "Sin probar", "notas": "Columnas tomadas de la macro FormatoNacion. Confirmar con un extracto real."
+    },
+    {
+      "nombre": "Provincia", "filaEncabezado": 5,
+      "fecha": "B", "concepto": "C", "cpbte": "",
+      "debito": "", "credito": "", "importe": "D", "invertir": false,
+      "estado": "Probado (PDF)", "notas": "PDF probado. Excel/CSV con columnas de la macro FormatoProvincia, sin probar."
+    },
+    {
+      "nombre": "Automático (detectar encabezados)", "filaEncabezado": 0,
+      "fecha": "fecha", "concepto": "concepto|descripcion|detalle|movimiento", "cpbte": "comprobante|cpbte|referencia|nro",
+      "debito": "debito|debe|egreso", "credito": "credito|haber|ingreso", "importe": "importe|monto", "invertir": false,
+      "estado": "Genérico", "notas": "Busca encabezados habituales. Sirve para probar un banco nuevo."
+    }
+  ]
+}
