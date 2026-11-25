@@ -227,7 +227,7 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 
 /* Botones principales (Procesar y Descargar): otra tipografía y en mayúsculas */
 .boton.boton-principal {
-  background: #822762; border-color: #822762;
+  background: #634A5D; border-color: #634A5D; /* ciruela #724B68, más apagado */
   height: 46px; min-width: 260px; padding: 0 32px; gap: 10px;
   font-family: Montserrat, Inter, system-ui, sans-serif; font-size: 13px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .1em;
