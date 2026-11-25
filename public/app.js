@@ -34,6 +34,97 @@
 
   const esProbado = estado => /^probado/i.test(estado || '');
 
+  // Desplegable de bancos. El <select> oculto guarda el valor; esta lista es la que se ve.
+  const menu = (function () {
+    const cont = $('selectBanco'), sel = $('banco'), boton = $('bancoBoton'), lista = $('bancoLista');
+    let activa = -1;
+    const items = () => [...lista.children];
+
+    function armar() {
+      lista.innerHTML = '';
+      [...sel.options].forEach((o, i) => {
+        const b = bancos.find(x => x.nombre === o.value);
+        const li = document.createElement('li');
+        li.id = 'bancoOpc' + i;
+        li.setAttribute('role', 'option');
+        li.dataset.valor = o.value;
+        const n = document.createElement('span'); n.textContent = o.value;
+        li.appendChild(n);
+        if (b && b.estado && !esProbado(b.estado)) {
+          const s = document.createElement('small'); s.textContent = b.estado.toLowerCase();
+          li.appendChild(s);
+        }
+        li.addEventListener('click', () => { elegir(o.value); cerrar(true); });
+        li.addEventListener('mousemove', () => marcar(i));
+        lista.appendChild(li);
+      });
+      mostrar();
+    }
+
+    function mostrar() {
+      $('bancoTexto').textContent = sel.value || 'Elige un banco';
+      items().forEach(li => li.setAttribute('aria-selected', li.dataset.valor === sel.value ? 'true' : 'false'));
+    }
+
+    function elegir(valor) {
+      if (sel.value === valor) return;
+      sel.value = valor;
+      sel.dispatchEvent(new Event('change'));
+    }
+
+    function marcar(i) {
+      const li = items();
+      if (!li.length) return;
+      activa = Math.max(0, Math.min(li.length - 1, i));
+      li.forEach((x, j) => x.classList.toggle('activa', j === activa));
+      lista.setAttribute('aria-activedescendant', li[activa].id);
+      li[activa].scrollIntoView({ block: 'nearest' });
+    }
+
+    function abrir() {
+      if (!lista.children.length) return;
+      items().forEach((li, i) => li.style.setProperty('--i', i));
+      lista.hidden = false;
+      cont.classList.add('abierto');
+      boton.setAttribute('aria-expanded', 'true');
+      marcar(Math.max(0, items().findIndex(li => li.dataset.valor === sel.value)));
+      lista.focus();
+    }
+
+    function cerrar(devolverFoco) {
+      if (lista.hidden) return;
+      lista.hidden = true;
+      cont.classList.remove('abierto');
+      boton.setAttribute('aria-expanded', 'false');
+      items().forEach(x => x.classList.remove('activa'));
+      if (devolverFoco) boton.focus();
+    }
+
+    boton.addEventListener('click', () => (lista.hidden ? abrir() : cerrar(true)));
+    boton.addEventListener('keydown', e => {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) { e.preventDefault(); abrir(); }
+    });
+    lista.addEventListener('keydown', e => {
+      const n = items().length;
+      if (e.key === 'ArrowDown') { e.preventDefault(); marcar(activa + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); marcar(activa - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); marcar(0); }
+      else if (e.key === 'End') { e.preventDefault(); marcar(n - 1); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (activa >= 0) elegir(items()[activa].dataset.valor); cerrar(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); cerrar(true); }
+      else if (e.key === 'Tab') cerrar(false);
+      else if (e.key.length === 1) {
+        // Saltar al primer banco que empieza con esa letra
+        const k = items().findIndex(li => li.dataset.valor.toLowerCase().startsWith(e.key.toLowerCase()));
+        if (k >= 0) marcar(k);
+      }
+    });
+    document.addEventListener('pointerdown', e => { if (!cont.contains(e.target)) cerrar(false); });
+    sel.addEventListener('change', mostrar);
+
+    return { armar };
+  })();
+
   // Perfiles de bancos: config/bancos.json (mismos campos que la hoja "Bancos" del Sheet)
   fetch('config/bancos.json', { cache: 'no-cache' })
     .then(r => r.ok ? r.json() : Promise.reject(new Error('No se pudo cargar la lista de bancos.')))
@@ -55,6 +146,7 @@
       });
       const ultimo = leer('ultimoBanco');
       if (bancos.some(b => b.nombre === ultimo)) sel.value = ultimo;
+      menu.armar();
       notaBanco();
       $('boton').disabled = false;
     })

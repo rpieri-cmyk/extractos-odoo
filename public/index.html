@@ -45,9 +45,14 @@
       <section class="tarjeta">
         <form id="form">
           <div class="campo">
-            <label for="banco">Banco</label>
-            <div class="select">
-              <select id="banco" required><option>Cargando…</option></select>
+            <label id="bancoEtiqueta" for="bancoBoton">Banco</label>
+            <div class="select" id="selectBanco">
+              <select id="banco" class="nativo" required tabindex="-1" aria-hidden="true"><option>Cargando…</option></select>
+              <button type="button" id="bancoBoton" class="select-boton" aria-haspopup="listbox" aria-expanded="false"
+                      aria-controls="bancoLista" aria-labelledby="bancoEtiqueta bancoTexto">
+                <span id="bancoTexto">Cargando…</span>
+              </button>
+              <ul id="bancoLista" class="select-lista" role="listbox" tabindex="-1" aria-labelledby="bancoEtiqueta" hidden></ul>
             </div>
             <div id="notaBanco" class="ayuda"></div>
           </div>
