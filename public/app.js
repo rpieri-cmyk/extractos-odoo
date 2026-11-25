@@ -24,15 +24,8 @@
     const nota = $('notaBanco');
     nota.textContent = '';
     if (!b) return;
-    if (b.estado && !/^probado/i.test(b.estado)) {
-      const s = document.createElement('strong');
-      s.textContent = 'Perfil ' + b.estado.toLowerCase() + ': revisa el resultado antes de importarlo. ';
-      nota.appendChild(s);
-    }
     nota.appendChild(document.createTextNode(b.notas || ''));
   }
-
-  const esProbado = estado => /^probado/i.test(estado || '');
 
   // Desplegable de bancos. El <select> oculto guarda el valor; esta lista es la que se ve.
   const menu = (function () {
@@ -43,17 +36,12 @@
     function armar() {
       lista.innerHTML = '';
       [...sel.options].forEach((o, i) => {
-        const b = bancos.find(x => x.nombre === o.value);
         const li = document.createElement('li');
         li.id = 'bancoOpc' + i;
         li.setAttribute('role', 'option');
         li.dataset.valor = o.value;
         const n = document.createElement('span'); n.textContent = o.value;
         li.appendChild(n);
-        if (b && b.estado && !esProbado(b.estado)) {
-          const s = document.createElement('small'); s.textContent = b.estado.toLowerCase();
-          li.appendChild(s);
-        }
         li.addEventListener('click', () => { elegir(o.value); cerrar(true); });
         li.addEventListener('mousemove', () => marcar(i));
         lista.appendChild(li);
@@ -141,7 +129,7 @@
       bancos.forEach(b => {
         const o = document.createElement('option');
         o.value = b.nombre;
-        o.textContent = b.nombre + (b.estado && !/^probado/i.test(b.estado) ? ' (' + b.estado.toLowerCase() + ')' : '');
+        o.textContent = b.nombre;
         sel.appendChild(o);
       });
       const ultimo = leer('ultimoBanco');
@@ -223,7 +211,6 @@
     }
     return {
       archivo: f.name, banco: perfil.nombre,
-      avisoPerfil: esProbado(perfil.estado) ? '' : perfil.estado,
       movs: r.movs, conCuit: r.conCuit, ingresos: r.ingresos, egresos: r.egresos,
       neto: Conversion.redondear(r.ingresos + r.egresos), desde: r.desde, hasta: r.hasta,
       estadoSugerido: r.estadoSugerido, titular: r.titular || '', saldosOk: r.saldosOk === true,
@@ -259,7 +246,6 @@
     const linea = (texto, clase) => { const p = document.createElement('p'); p.className = clase; p.textContent = texto; av.appendChild(p); };
     if (r.titular) linea('Titular de la cuenta: CUIT ' + r.titular + ' (no se usa como contacto).', 'info');
     if (r.saldosOk) linea('Saldos verificados: los movimientos cierran con el saldo del banco.', 'ok');
-    if (r.avisoPerfil) linea('El perfil "' + r.banco + '" está ' + r.avisoPerfil.toLowerCase() + '. Revisa fechas, importes y etiquetas antes de importar.', 'alerta');
     if (r.avisos.length) {
       linea('Revisar ' + r.avisos.length + ' aviso(s):', 'alerta');
       const ul = document.createElement('ul');
