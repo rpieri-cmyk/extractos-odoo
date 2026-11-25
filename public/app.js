@@ -26,16 +26,25 @@
     if (!b) return;
     if (b.estado && !/^probado/i.test(b.estado)) {
       const s = document.createElement('strong');
-      s.textContent = 'Perfil ' + b.estado.toLowerCase() + ': revisá el resultado antes de importarlo. ';
+      s.textContent = 'Perfil ' + b.estado.toLowerCase() + ': revisa el resultado antes de importarlo. ';
       nota.appendChild(s);
     }
     nota.appendChild(document.createTextNode(b.notas || ''));
   }
 
-  fetch('api/bancos', { cache: 'no-store' })
+  const esProbado = estado => /^probado/i.test(estado || '');
+
+  // Perfiles de bancos: config/bancos.json (mismos campos que la hoja "Bancos" del Sheet)
+  fetch('config/bancos.json', { cache: 'no-cache' })
     .then(r => r.ok ? r.json() : Promise.reject(new Error('No se pudo cargar la lista de bancos.')))
     .then(r => {
-      bancos = r.bancos;
+      bancos = (r.bancos || []).filter(b => b && b.nombre).map(b => ({
+        nombre: String(b.nombre).trim(), filaEncabezado: Number(b.filaEncabezado) || 0,
+        fecha: b.fecha || '', concepto: b.concepto || '', cpbte: b.cpbte || '',
+        debito: b.debito || '', credito: b.credito || '', importe: b.importe || '',
+        invertir: b.invertir === true, estado: String(b.estado || '').trim(), notas: String(b.notas || '')
+      }));
+      if (!bancos.length) throw new Error('No hay bancos configurados.');
       const sel = $('banco');
       sel.innerHTML = '';
       bancos.forEach(b => {
@@ -58,9 +67,19 @@
   const zona = $('zona');
   const mostrarArchivo = () => {
     const f = $('archivo').files[0];
-    $('zonaTexto').textContent = f ? f.name : 'Arrastrá el archivo acá o hacé clic para elegirlo';
+    $('zonaTitulo').textContent = f ? f.name : 'Arrastra tu extracto aquí';
+    $('zonaSub').textContent = f ? (f.size / 1024).toFixed(0) + ' KB · Listo para procesar' : '.pdf, .xls, .xlsx o .csv · Un archivo a la vez';
     zona.classList.toggle('con-archivo', !!f);
   };
+
+  // Indicador de pasos: 1 Carga, 2 Revisa, 3 Descarga
+  function paso(n) {
+    document.querySelectorAll('#pasos li').forEach((li, i) => {
+      li.classList.toggle('activo', i + 1 === n);
+      li.classList.toggle('hecho', i + 1 < n);
+      if (i + 1 === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+  }
   $('archivo').addEventListener('change', mostrarArchivo);
   ['dragenter', 'dragover'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('encima'); }));
   ['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('encima'); }));
@@ -71,7 +90,8 @@
   $('form').addEventListener('submit', async e => {
     e.preventDefault();
     const f = $('archivo').files[0];
-    if (!f) { mensaje('Elegí un archivo primero.', 'error'); return; }
+    if (!f) { mensaje('Elige un archivo primero.', 'error'); return; }
+    paso(1);
     const banco = $('banco').value;
     const cuitPropio = $('cuitPropio').value.trim();
     guardar('ultimoBanco', banco);
@@ -81,13 +101,7 @@
     datos = null;
     mensaje('Procesando ' + f.name + ' (' + banco + ')…');
     try {
-      const q = new URLSearchParams({ banco, nombre: f.name, cuitPropio });
-      const r = await fetch('api/procesar?' + q, {
-        method: 'POST', body: f, headers: { 'Content-Type': 'application/octet-stream' }
-      });
-      const j = await r.json().catch(() => ({ error: 'Respuesta inválida del servidor (' + r.status + ').' }));
-      if (!r.ok) throw new Error(j.error || 'Error ' + r.status);
-      datos = j;
+      datos = await procesar(f, banco, cuitPropio);
       mostrarResultado();
       mensaje('');
     } catch (err) {
@@ -96,6 +110,35 @@
       $('boton').disabled = false;
     }
   });
+
+  // Todo ocurre en esta pestaña: el archivo se lee en memoria y no se envía a ningún servidor.
+  async function procesar(f, banco, cuitPropioTexto) {
+    const tipo = Lectores.tipoArchivo(f.name);
+    if (!tipo) throw new Error('Formato no soportado. Sube el extracto en .pdf, .xls, .xlsx o .csv.');
+    if (!f.size) throw new Error('El archivo está vacío.');
+    const perfil = bancos.find(b => b.nombre === banco) || bancos[0];
+    const cuitPropio = cuitPropioTexto.replace(/[^\d,]/g, '');
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    let r;
+    try {
+      if (tipo === 'pdf') {
+        r = Conversion.convertirPdf(await Lectores.leerPdf(bytes), cuitPropio, perfil.nombre);
+      } else {
+        const filas = tipo === 'csv' ? Lectores.leerCsv(bytes) : Lectores.leerPlanilla(bytes);
+        r = Conversion.convertirExtracto(filas, cuitPropio, perfil);
+      }
+    } catch (e) {
+      throw new Error(String(e && e.message || 'No se pudo leer el archivo.').replace(/la hoja "Bancos"/g, 'la configuración de bancos'));
+    }
+    return {
+      archivo: f.name, banco: perfil.nombre,
+      avisoPerfil: esProbado(perfil.estado) ? '' : perfil.estado,
+      movs: r.movs, conCuit: r.conCuit, ingresos: r.ingresos, egresos: r.egresos,
+      neto: Conversion.redondear(r.ingresos + r.egresos), desde: r.desde, hasta: r.hasta,
+      estadoSugerido: r.estadoSugerido, titular: r.titular || '', saldosOk: r.saldosOk === true,
+      avisos: r.avisos || []
+    };
+  }
 
   function cifra(titulo, valor, clase) {
     const d = document.createElement('div');
@@ -125,7 +168,7 @@
     const linea = (texto, clase) => { const p = document.createElement('p'); p.className = clase; p.textContent = texto; av.appendChild(p); };
     if (r.titular) linea('Titular de la cuenta: CUIT ' + r.titular + ' (no se usa como contacto).', 'info');
     if (r.saldosOk) linea('Saldos verificados: los movimientos cierran con el saldo del banco.', 'ok');
-    if (r.avisoPerfil) linea('El perfil "' + r.banco + '" está ' + r.avisoPerfil.toLowerCase() + '. Revisá fechas, importes y etiquetas antes de importar.', 'alerta');
+    if (r.avisoPerfil) linea('El perfil "' + r.banco + '" está ' + r.avisoPerfil.toLowerCase() + '. Revisa fechas, importes y etiquetas antes de importar.', 'alerta');
     if (r.avisos.length) {
       linea('Revisar ' + r.avisos.length + ' aviso(s):', 'alerta');
       const ul = document.createElement('ul');
@@ -154,6 +197,7 @@
       tb.appendChild(tr);
     });
     $('resultado').hidden = false;
+    paso(2);
     $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -161,27 +205,25 @@
     if (!datos) return;
     const variante = b.dataset.variante;
     const estado = $('estado').value.trim();
-    if (variante === 'con' && !estado) { mensaje('Completá el Estado de cuenta.', 'error'); $('estado').focus(); return; }
+    if (variante === 'con' && !estado) { mensaje('Completa el Estado de cuenta.', 'error'); $('estado').focus(); return; }
     b.disabled = true;
     try {
-      const r = await fetch('api/descargar', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado, variante, movs: datos.movs.map(m => ({ serial: m.serial, importe: m.importe, etiqueta: m.etiqueta, cuit: m.cuit })) })
-      });
-      if (!r.ok) {
-        const j = await r.json().catch(() => ({}));
-        throw new Error(j.error || 'Error ' + r.status);
-      }
-      const blob = await r.blob();
-      const cd = r.headers.get('Content-Disposition') || '';
-      const m = cd.match(/filename\*=UTF-8''([^;]+)/);
+      const conEstado = variante !== 'sin';
+      const movs = datos.movs.map(m => ({
+        serial: m.serial, importe: m.importe, etiqueta: m.etiqueta,
+        cuit: String(m.cuit || '').replace(/\D/g, '').slice(0, 11)
+      }));
+      if (!movs.length) throw new Error('No hay movimientos para exportar.');
+      const blob = new Blob([Salida.armarLibro(movs, estado, conEstado)],
+        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = m ? decodeURIComponent(m[1]) : 'odoo.xlsx';
+      a.download = Salida.nombreArchivo(estado || 'extracto', conEstado);
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      paso(3);
     } catch (err) {
       mensaje(err.message, 'error');
     } finally {

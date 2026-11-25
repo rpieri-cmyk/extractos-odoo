@@ -3,42 +3,92 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Extractos a Odoo</title>
+  <!-- La página solo puede conectarse a sí misma y a los CDN de las librerías: el extracto no puede salir del navegador -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <title>Generador de Extractos</title>
+  <meta name="description" content="Convierte tu extracto bancario en templates listos para importar en Odoo.">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-  <header>
-    <h1>Extractos bancarios → Odoo</h1>
-    <p class="sub">Convierte el extracto del banco en los templates de importación de Odoo. El archivo se procesa en el momento y no se guarda en el servidor.</p>
-  </header>
+  <nav class="barra">
+    <div class="barra-in">
+      <a class="marca" href="./">
+        <img src="logo.svg" alt="" width="52" height="35">
+        <span>Generador de Extractos</span>
+      </a>
+      <a class="nav-activa" href="./" aria-current="page">Convertir extracto</a>
+      <span class="nav-priv">Sin guardar tus archivos</span>
+    </div>
+  </nav>
 
   <main>
-    <section class="tarjeta">
-      <form id="form">
-        <div class="campo">
-          <label for="banco">Banco</label>
-          <select id="banco" required><option>Cargando…</option></select>
-          <div id="notaBanco" class="nota"></div>
-        </div>
-        <div class="campo">
-          <label for="archivo">Extracto (.pdf, .xls, .xlsx o .csv)</label>
+    <div class="cabecera">
+      <div>
+        <p class="antetitulo">Líneas de extracto</p>
+        <h1>Todo empieza con un archivo.</h1>
+        <p class="desc">Convierte tu extracto bancario en templates listos para importar en Odoo</p>
+      </div>
+      <ol class="pasos" id="pasos" aria-label="Progreso">
+        <li class="activo"><span>1</span>Carga</li>
+        <li><span>2</span>Revisa</li>
+        <li><span>3</span>Descarga</li>
+      </ol>
+    </div>
+
+    <div class="rejilla">
+      <section class="tarjeta">
+        <form id="form">
+          <div class="campo">
+            <label for="banco">Banco</label>
+            <div class="select">
+              <select id="banco" required><option>Cargando…</option></select>
+            </div>
+            <div id="notaBanco" class="ayuda"></div>
+          </div>
+
           <label id="zona" class="zona" for="archivo">
-            <span id="zonaTexto">Arrastrá el archivo acá o hacé clic para elegirlo</span>
+            <span class="zona-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5ZM8 12v1.6h8V12H8Zm0 3.4V17h8v-1.6H8Z"/></svg>
+            </span>
+            <span class="zona-texto">
+              <strong id="zonaTitulo">Arrastra tu extracto aquí</strong>
+              <small id="zonaSub">.pdf, .xls, .xlsx o .csv · Un archivo a la vez</small>
+            </span>
+            <span class="boton boton-claro">Seleccionar archivo</span>
             <input type="file" id="archivo" accept=".pdf,.xls,.xlsx,.ods,.csv,.txt" required>
           </label>
-        </div>
-        <div class="campo">
-          <label for="cuitPropio">CUIT propio a ignorar <span class="opcional">(opcional, varios separados por coma)</span></label>
-          <input type="text" id="cuitPropio" inputmode="numeric" placeholder="30-12345678-9" autocomplete="off">
-        </div>
-        <button type="submit" id="boton" disabled>Procesar</button>
-      </form>
-      <div id="mensaje" role="status"></div>
-    </section>
 
-    <section id="resultado" class="tarjeta" hidden>
+          <div class="campo">
+            <label for="cuitPropio">CUIT propio a ignorar <span class="opcional">Opcional</span></label>
+            <div class="fila-cuit">
+              <input type="text" id="cuitPropio" inputmode="numeric" placeholder="30-12345678-9" autocomplete="off">
+              <button type="submit" id="boton" class="boton" disabled>Procesar extracto</button>
+            </div>
+            <div class="ayuda">Puedes indicar varios CUIT separados por coma.</div>
+          </div>
+        </form>
+        <div id="mensaje" role="status"></div>
+      </section>
+
+      <aside class="panel">
+        <h2>Genera el template</h2>
+        <ol class="guia">
+          <li><span>1</span><div><strong>Carga tu extracto</strong>Elige el banco y agrega un archivo.</div></li>
+          <li><span>2</span><div><strong>Revisa los movimientos</strong>Comprueba fechas, importes y avisos. Puedes corregir o borrar el partner_id.</div></li>
+          <li><span>3</span><div><strong>Descarga para Odoo</strong>Elige el template con o sin estado de cuenta e impórtalo en Odoo.</div></li>
+        </ol>
+      </aside>
+    </div>
+    <p class="nota-conv">La conversión genera un template descargable; no envía datos directamente a Odoo.</p>
+
+    <section id="resultado" class="tarjeta resultado" hidden>
+      <p class="antetitulo">Revisa</p>
       <h2>Resultado</h2>
-      <p id="origen" class="nota"></p>
+      <p id="origen" class="ayuda"></p>
       <div class="cifras" id="cifras"></div>
       <div id="avisos"></div>
 
@@ -48,10 +98,10 @@
           <input type="text" id="estado" autocomplete="off">
         </div>
         <div class="botones">
-          <button type="button" data-variante="con">Descargar template con estado de cuenta</button>
-          <button type="button" data-variante="sin" class="secundario">Descargar template sin estado de cuenta</button>
+          <button type="button" class="boton" data-variante="con">Descargar con estado de cuenta</button>
+          <button type="button" class="boton boton-sec" data-variante="sin">Descargar sin estado de cuenta</button>
         </div>
-        <p class="nota">Podés corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo).</p>
+        <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo).</p>
       </div>
 
       <div class="tabla">
@@ -61,8 +111,30 @@
         </table>
       </div>
     </section>
+
+    <section class="privacidad">
+      <div>
+        <span class="raya" aria-hidden="true"></span>
+        <p class="antetitulo">Privacidad primero</p>
+        <h2>Tus extractos no se guardan.</h2>
+        <p>El archivo se procesa en tu navegador y nunca se envía a ningún servidor.</p>
+      </div>
+      <div class="priv-der">
+        <strong>Sin historial ni almacenamiento de extractos.</strong>
+        <p>Solo se recuerdan el banco y el CUIT propio en tu navegador para la próxima vez.</p>
+      </div>
+    </section>
   </main>
 
+  <footer>
+    <span>Extractos bancarios → Odoo</span>
+    <span>Revisa siempre el resultado antes de importarlo.</span>
+  </footer>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="lib/conversion.js"></script>
+  <script src="lib/lectores.js"></script>
+  <script src="lib/salida.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
