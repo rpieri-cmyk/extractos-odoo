@@ -8,9 +8,12 @@
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } };
   const leer = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
 
+  // Los textos de la página van sin punto final
+  const sinPunto = t => String(t || '').replace(/\.\s*$/, '');
+
   function mensaje(texto, tipo) {
     const m = $('mensaje');
-    m.textContent = texto || '';
+    m.textContent = sinPunto(texto);
     m.className = tipo || '';
   }
 
@@ -115,7 +118,7 @@
 
   // Perfiles de bancos: config/bancos.json (mismos campos que la hoja "Bancos" del Sheet)
   fetch('config/bancos.json', { cache: 'no-cache' })
-    .then(r => r.ok ? r.json() : Promise.reject(new Error('No se pudo cargar la lista de bancos.')))
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('No se pudo cargar la lista de bancos')))
     .then(r => {
       bancos = (r.bancos || []).filter(b => b && b.nombre).map(b => ({
         nombre: String(b.nombre).trim(), filaEncabezado: Number(b.filaEncabezado) || 0,
@@ -123,7 +126,7 @@
         debito: b.debito || '', credito: b.credito || '', importe: b.importe || '',
         invertir: b.invertir === true, estado: String(b.estado || '').trim(), notas: String(b.notas || '')
       }));
-      if (!bancos.length) throw new Error('No hay bancos configurados.');
+      if (!bancos.length) throw new Error('No hay bancos configurados');
       const sel = $('banco');
       sel.innerHTML = '';
       bancos.forEach(b => {
@@ -171,7 +174,7 @@
   $('form').addEventListener('submit', async e => {
     e.preventDefault();
     const f = $('archivo').files[0];
-    if (!f) { mensaje('Elige un archivo primero.', 'error'); return; }
+    if (!f) { mensaje('Elige un archivo primero', 'error'); return; }
     paso(1);
     const banco = $('banco').value;
     guardar('ultimoBanco', banco);
@@ -193,8 +196,8 @@
   // Todo ocurre en esta pestaña: el archivo se lee en memoria y no se envía a ningún servidor.
   async function procesar(f, banco) {
     const tipo = Lectores.tipoArchivo(f.name);
-    if (!tipo) throw new Error('Formato no soportado. Sube el extracto en .pdf, .xls, .xlsx o .csv.');
-    if (!f.size) throw new Error('El archivo está vacío.');
+    if (!tipo) throw new Error('Formato no soportado: sube el extracto en .pdf, .xls, .xlsx o .csv');
+    if (!f.size) throw new Error('El archivo está vacío');
     const perfil = bancos.find(b => b.nombre === banco) || bancos[0];
     const cuitPropio = ''; // el CUIT del titular se detecta solo en los PDF que lo traen
     const bytes = new Uint8Array(await f.arrayBuffer());
@@ -207,7 +210,7 @@
         r = Conversion.convertirExtracto(filas, cuitPropio, perfil);
       }
     } catch (e) {
-      throw new Error(String(e && e.message || 'No se pudo leer el archivo.').replace(/la hoja "Bancos"/g, 'la configuración de bancos'));
+      throw new Error(String(e && e.message || 'No se pudo leer el archivo').replace(/la hoja "Bancos"/g, 'la configuración de bancos'));
     }
     return {
       archivo: f.name, banco: perfil.nombre,
@@ -243,14 +246,14 @@
 
     const av = $('avisos');
     av.innerHTML = '';
-    const linea = (texto, clase) => { const p = document.createElement('p'); p.className = clase; p.textContent = texto; av.appendChild(p); };
-    if (r.titular) linea('Titular de la cuenta: CUIT ' + r.titular + ' (no se usa como contacto).', 'info');
-    if (r.saldosOk) linea('Saldos verificados: los movimientos cierran con el saldo del banco.', 'ok');
+    const linea = (texto, clase) => { const p = document.createElement('p'); p.className = clase; p.textContent = sinPunto(texto); av.appendChild(p); };
+    if (r.titular) linea('Titular de la cuenta: CUIT ' + r.titular + ' (no se usa como contacto)', 'info');
+    if (r.saldosOk) linea('Saldos verificados: los movimientos cierran con el saldo del banco', 'ok');
     if (r.avisos.length) {
       linea('Revisar ' + r.avisos.length + ' aviso(s):', 'alerta');
       const ul = document.createElement('ul');
       ul.className = 'alerta';
-      r.avisos.slice(0, 10).forEach(a => { const li = document.createElement('li'); li.textContent = a; ul.appendChild(li); });
+      r.avisos.slice(0, 10).forEach(a => { const li = document.createElement('li'); li.textContent = sinPunto(a); ul.appendChild(li); });
       av.appendChild(ul);
     }
 
@@ -282,7 +285,7 @@
     if (!datos) return;
     const variante = b.dataset.variante;
     const estado = $('estado').value.trim();
-    if (variante === 'con' && !estado) { mensaje('Completa el Estado de cuenta.', 'error'); $('estado').focus(); return; }
+    if (variante === 'con' && !estado) { mensaje('Completa el Estado de cuenta', 'error'); $('estado').focus(); return; }
     b.disabled = true;
     try {
       const conEstado = variante !== 'sin';
@@ -290,7 +293,7 @@
         serial: m.serial, importe: m.importe, etiqueta: m.etiqueta,
         cuit: String(m.cuit || '').replace(/\D/g, '').slice(0, 11)
       }));
-      if (!movs.length) throw new Error('No hay movimientos para exportar.');
+      if (!movs.length) throw new Error('No hay movimientos para exportar');
       const blob = new Blob([Salida.armarLibro(movs, estado, conEstado)],
         { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const a = document.createElement('a');

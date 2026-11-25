@@ -6,7 +6,7 @@
   <!-- La página solo puede conectarse a sí misma y a los CDN de las librerías: el extracto no puede salir del navegador -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; form-action 'none'; base-uri 'none'; object-src 'none'">
   <title>Generador de Extractos</title>
-  <meta name="description" content="Convierte tu extracto bancario en una planilla lista para importar en Odoo.">
+  <meta name="description" content="Convierte tu extracto bancario en una planilla lista para importar en Odoo">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#F8F9FB">
@@ -31,7 +31,7 @@
     <div class="cabecera">
       <div>
         <p class="antetitulo">Líneas de extracto</p>
-        <h1>Todo empieza con un archivo.</h1>
+        <h1>Todo empieza con un archivo</h1>
         <p class="desc">Convierte tu extracto bancario en una planilla lista para importar en Odoo</p>
       </div>
       <ol class="pasos" id="pasos" aria-label="Progreso">
@@ -79,13 +79,13 @@
       <aside class="panel">
         <h2>Genera el template</h2>
         <ol class="guia">
-          <li><span>1</span><div><strong>Carga tu extracto</strong>Elige el banco y agrega un archivo.</div></li>
-          <li><span>2</span><div><strong>Revisa los movimientos</strong>Comprueba fechas, importes y avisos. Puedes corregir o borrar el partner_id.</div></li>
-          <li><span>3</span><div><strong>Descarga para Odoo</strong>Elige el template con o sin estado de cuenta e impórtalo en Odoo.</div></li>
+          <li><span>1</span><div><strong>Carga tu extracto</strong>Elige el banco y agrega un archivo</div></li>
+          <li><span>2</span><div><strong>Revisa los movimientos</strong>Comprueba fechas, importes y avisos<br>Puedes corregir o borrar el partner_id</div></li>
+          <li><span>3</span><div><strong>Descarga para Odoo</strong>Elige el template con o sin estado de cuenta e impórtalo en Odoo</div></li>
         </ol>
       </aside>
     </div>
-    <p class="nota-conv">La conversión genera un template descargable; no envía datos directamente a Odoo.</p>
+    <p class="nota-conv">La conversión genera un template descargable; no envía datos directamente a Odoo</p>
 
     <section id="resultado" class="tarjeta resultado" hidden>
       <p class="antetitulo">Revisa</p>
@@ -103,7 +103,7 @@
           <button type="button" class="boton" data-variante="con">Descargar con estado de cuenta</button>
           <button type="button" class="boton boton-sec" data-variante="sin">Descargar sin estado de cuenta</button>
         </div>
-        <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo).</p>
+        <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo)</p>
       </div>
 
       <div class="tabla">
@@ -117,20 +117,19 @@
     <section class="privacidad">
       <div>
         <span class="raya" aria-hidden="true"></span>
-        <p class="antetitulo">Privacidad primero</p>
-        <h2>Tus extractos no se guardan.</h2>
-        <p>El archivo se procesa en tu navegador y nunca se envía a ningún servidor.</p>
+        <p class="antetitulo">Tu privacidad primero</p>
+        <h2>Los extractos no se guardan</h2>
       </div>
       <div class="priv-der">
-        <strong>Sin historial ni almacenamiento de extractos.</strong>
-        <p>Solo se recuerda en tu navegador el último banco elegido, para la próxima vez.</p>
+        <strong>Sin historial ni almacenamiento de extractos</strong>
+        <p>Solo se recuerda en tu navegador el último banco elegido, para la próxima vez</p>
       </div>
     </section>
   </main>
 
   <footer>
     <span>Extractos bancarios → Odoo</span>
-    <span>Revisa siempre el resultado antes de importarlo.</span>
+    <span>Revisa siempre el resultado antes de importarlo</span>
   </footer>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
