@@ -133,8 +133,8 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 }
 .select-lista li small { color: var(--suave); font-size: 11px; }
 .select-lista li.activa { background: var(--zona); padding-left: 18px; }
-.select-lista li[aria-selected="true"] { background: #B19DB0; color: #3D2459; font-weight: 600; }
-.select-lista li[aria-selected="true"] small { color: #3D2459; }
+.select-lista li[aria-selected="true"] { background: #B19DB0; color: #FFFFFF; font-weight: 600; }
+.select-lista li[aria-selected="true"] small { color: #FFFFFF; }
 .select-lista li[aria-selected="true"]::after { content: "✓"; font-size: 13px; }
 .select-lista li[aria-selected="true"].activa { padding-left: 18px; }
 @keyframes desplegar {
