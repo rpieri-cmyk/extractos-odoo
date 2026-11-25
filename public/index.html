@@ -27,6 +27,24 @@
     </div>
   </nav>
 
+  <!-- Pasos: se desbloquean a medida que se avanza y siguen la sección que se está viendo -->
+  <nav class="riel" id="riel" aria-label="Progreso">
+    <div class="riel-cuerpo">
+      <span class="riel-linea" aria-hidden="true"><span class="riel-relleno"></span></span>
+      <ol>
+        <li class="paso" data-paso="1" data-destino="seccionCarga">
+          <button type="button"><span class="punto"><span class="num">1</span><svg class="candado" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 7V5a3 3 0 0 1 6 0v2M4 7h8v6H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="nombre">Carga</span></button>
+        </li>
+        <li class="paso" data-paso="2" data-destino="seccionRevisa">
+          <button type="button"><span class="punto"><span class="num">2</span><svg class="candado" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 7V5a3 3 0 0 1 6 0v2M4 7h8v6H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="nombre">Revisa</span></button>
+        </li>
+        <li class="paso" data-paso="3" data-destino="seccionDescarga">
+          <button type="button"><span class="punto"><span class="num">3</span><svg class="candado" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 7V5a3 3 0 0 1 6 0v2M4 7h8v6H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="nombre">Descarga</span></button>
+        </li>
+      </ol>
+    </div>
+  </nav>
+
   <main>
     <div class="cabecera">
       <div>
@@ -34,14 +52,9 @@
         <h1>Todo empieza con un archivo</h1>
         <p class="desc">Convierte tu extracto bancario en una planilla lista para importar en Odoo</p>
       </div>
-      <ol class="pasos" id="pasos" aria-label="Progreso">
-        <li class="activo"><span>1</span>Carga</li>
-        <li><span>2</span>Revisa</li>
-        <li><span>3</span>Descarga</li>
-      </ol>
     </div>
 
-    <div class="rejilla">
+    <div class="rejilla" id="seccionCarga">
       <section class="tarjeta">
         <form id="form">
           <div class="campo">
@@ -88,13 +101,23 @@
     <p class="nota-conv">La conversión genera una planilla descargable; no envía datos directamente a Odoo</p>
 
     <section id="resultado" class="tarjeta resultado" hidden>
-      <p class="antetitulo">Revisa</p>
-      <h2>Movimientos del extracto</h2>
-      <p id="origen" class="ayuda"></p>
-      <div class="cifras" id="cifras"></div>
-      <div id="avisos"></div>
+      <div id="seccionRevisa">
+        <p class="antetitulo">Revisa</p>
+        <h2>Movimientos del extracto</h2>
+        <p id="origen" class="ayuda"></p>
+        <div class="cifras" id="cifras"></div>
+        <div id="avisos"></div>
+        <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo)</p>
+        <div class="tabla">
+          <table>
+            <thead><tr><th>Fecha</th><th class="num">Importe</th><th>Etiqueta</th><th>partner_id</th></tr></thead>
+            <tbody id="filas"></tbody>
+          </table>
+        </div>
+      </div>
 
-      <div class="exportar">
+      <div class="exportar" id="seccionDescarga">
+        <p class="antetitulo">Descarga</p>
         <div class="campo">
           <label for="estado">Estado de cuenta</label>
           <input type="text" id="estado" autocomplete="off">
@@ -105,14 +128,6 @@
           </button>
         </div>
         <p id="mensajeDescarga" class="mensaje-descarga" role="status"></p>
-        <p class="ayuda">Puedes corregir o borrar el partner_id de cualquier fila antes de descargar (por ejemplo, si el contacto no existe en Odoo)</p>
-      </div>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th>Fecha</th><th class="num">Importe</th><th>Etiqueta</th><th>partner_id</th></tr></thead>
-          <tbody id="filas"></tbody>
-        </table>
       </div>
     </section>
 

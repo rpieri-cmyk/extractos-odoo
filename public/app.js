@@ -157,14 +157,73 @@
     $('filaProcesar').classList.toggle('visible', !!f); // el botón aparece recién con un archivo cargado
   };
 
-  // Indicador de pasos: 1 Carga, 2 Revisa, 3 Descarga
-  function paso(n) {
-    document.querySelectorAll('#pasos li').forEach((li, i) => {
-      li.classList.toggle('activo', i + 1 === n);
-      li.classList.toggle('hecho', i + 1 < n);
-      if (i + 1 === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
-    });
-  }
+  // Riel de pasos: 1 Carga, 2 Revisa, 3 Descarga
+  //   nivel  = hasta qué paso está desbloqueado (los demás muestran un candado)
+  //   hechos = pasos completados
+  //   activo = el paso de la sección que se está viendo al bajar
+  const riel = (function () {
+    const pasos = [...document.querySelectorAll('#riel .paso')];
+    const seccion = li => $(li.dataset.destino);
+    let nivel = 1, hechos = new Set(), activo = 1;
+
+    function pintar() {
+      pasos.forEach(li => {
+        const n = Number(li.dataset.paso);
+        const estabaBloqueado = li.classList.contains('bloqueado');
+        const bloqueado = n > nivel;
+        li.classList.toggle('bloqueado', bloqueado);
+        li.classList.toggle('hecho', hechos.has(n) && n !== activo);
+        li.classList.toggle('activo', n === activo);
+        const b = li.querySelector('button');
+        b.setAttribute('aria-disabled', bloqueado ? 'true' : 'false');
+        b.title = bloqueado ? 'Se desbloquea al completar el paso anterior' : '';
+        if (n === activo) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+        if (estabaBloqueado && !bloqueado) {
+          li.classList.add('desbloqueando');
+          setTimeout(() => li.classList.remove('desbloqueando'), 700);
+        }
+      });
+      $('riel').style.setProperty('--progreso', ((nivel - 1) / (pasos.length - 1) * 100) + '%');
+    }
+
+    // El paso activo es la última sección desbloqueada cuyo comienzo ya pasó la mitad de la pantalla
+    function seguirScroll() {
+      let nuevo = 1;
+      pasos.forEach(li => {
+        const n = Number(li.dataset.paso), s = seccion(li);
+        if (n > nivel || !s || s.offsetParent === null) return;
+        if (s.getBoundingClientRect().top < window.innerHeight * 0.55) nuevo = n;
+      });
+      // Llegar a la descarga desbloquea el paso 3 (ya se recorrió la revisión)
+      const desc = $('seccionDescarga');
+      if (nivel === 2 && desc.offsetParent !== null && desc.getBoundingClientRect().top < window.innerHeight * 0.85) {
+        hechos.add(2); nivel = 3;
+        if (desc.getBoundingClientRect().top < window.innerHeight * 0.55) nuevo = 3;
+      }
+      activo = nuevo;
+      pintar();
+    }
+    let pendiente = false;
+    window.addEventListener('scroll', () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => { pendiente = false; seguirScroll(); });
+    }, { passive: true });
+    window.addEventListener('resize', seguirScroll);
+
+    pasos.forEach(li => li.querySelector('button').addEventListener('click', () => {
+      if (Number(li.dataset.paso) > nivel) return;
+      seccion(li).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+
+    pintar();
+    return {
+      reiniciar() { nivel = 1; hechos = new Set(); activo = 1; pintar(); },
+      procesado() { hechos.add(1); nivel = Math.max(nivel, 2); pintar(); },
+      descargado() { hechos.add(2); hechos.add(3); nivel = 3; pintar(); },
+      seguirScroll
+    };
+  })();
   $('archivo').addEventListener('change', mostrarArchivo);
   ['dragenter', 'dragover'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('encima'); }));
   ['dragleave', 'drop'].forEach(ev => zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('encima'); }));
@@ -176,7 +235,7 @@
     e.preventDefault();
     const f = $('archivo').files[0];
     if (!f) { mensaje('Elige un archivo primero', 'error'); return; }
-    paso(1);
+    riel.reiniciar();
     const banco = $('banco').value;
     guardar('ultimoBanco', banco);
     $('boton').disabled = true;
@@ -278,7 +337,7 @@
       tb.appendChild(tr);
     });
     $('resultado').hidden = false;
-    paso(2);
+    riel.procesado();
     $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -340,7 +399,7 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-      paso(3);
+      riel.descargado();
     } catch (err) {
       errorDescarga(err.message);
     } finally {
