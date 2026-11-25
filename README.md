@@ -1,6 +1,6 @@
-# Extractos bancarios → Odoo
+# Generador de Extractos → Odoo
 
-Aplicación web que convierte extractos bancarios (.pdf, .xls, .xlsx, .csv) en los dos templates de importación de extractos de Odoo. Es la misma lógica de conversión que el Google Sheet "Extractos Odoo 17 | Template", pero la pueden usar muchas personas a la vez.
+Página web que convierte extractos bancarios (.pdf, .xls, .xlsx, .csv) en los dos templates de importación de extractos de Odoo. Usa la misma lógica de conversión que el Google Sheet "Extractos Odoo 17 | Template", y la pueden usar muchas personas a la vez.
 
 | Template | Columnas |
 |---|---|
@@ -9,24 +9,23 @@ Aplicación web que convierte extractos bancarios (.pdf, .xls, .xlsx, .csv) en l
 
 El partner_id es el CUIT que aparece en el concepto del movimiento. Se toma solo si tiene 11 dígitos y el dígito verificador es válido.
 
-## Privacidad: no se guarda nada
+## Privacidad: el extracto no sale de la computadora
 
-- El extracto viaja en el pedido, se procesa en memoria y la respuesta vuelve solo a quien lo subió.
-- El servidor no escribe archivos: ni el extracto ni los .xlsx generados. No hay base de datos ni sesiones.
-- Las respuestas llevan `Cache-Control: no-store`, así que el navegador y el proxy no las guardan.
-- Los logs registran solo errores internos (ruta y tipo de error), nunca el contenido del archivo.
+- Es un sitio estático: no hay servidor que reciba archivos. El extracto se lee y se convierte **dentro del navegador** de quien lo carga, y el .xlsx se genera ahí mismo para descargar.
+- No hay base de datos, sesiones ni historial.
+- La página tiene una política de seguridad (Content-Security-Policy) que solo le permite conectarse a sí misma y a los CDN de las librerías, así que no puede enviar el extracto a ningún otro lado.
 - En el navegador de cada persona quedan solo dos preferencias: el último banco elegido y el CUIT propio a ignorar.
 - El `.gitignore` excluye .xls, .xlsx, .csv y .pdf para que nunca se suba un extracto al repositorio.
 
 ## Cómo se usa
 
-1. Elegir el banco y el archivo del extracto, y apretar **Procesar**.
+1. Elegir el banco y el archivo del extracto, y apretar **Procesar extracto**.
 2. Revisar el resumen, los avisos y la tabla de movimientos. Si un contacto no existe en Odoo, se puede corregir o borrar su partner_id.
 3. Revisar el **Estado de cuenta** (se completa con el período) y descargar el template que corresponda.
 
 ## Bancos
 
-Los bancos se configuran en [config/bancos.json](config/bancos.json), con los mismos campos que la hoja "Bancos" del Sheet. El archivo se relee en cada pedido, así que los cambios no requieren reiniciar el servicio.
+Los bancos se configuran en [public/config/bancos.json](public/config/bancos.json), con los mismos campos que la hoja "Bancos" del Sheet. Al guardar un cambio en GitHub, Vercel publica la versión nueva en uno o dos minutos.
 
 | Banco | Formatos | Estado |
 |---|---|---|
@@ -37,55 +36,41 @@ Los bancos se configuran en [config/bancos.json](config/bancos.json), con los mi
 | Nación | Excel (columnas de la macro) | Sin probar |
 | Automático | Cualquier planilla con encabezados habituales | Genérico |
 
-Si las columnas de un banco no coinciden con el archivo, la app intenta detectar los encabezados automáticamente y lo avisa. Los PDF se leen con un lector propio para cada banco (Ciudad y Provincia). Para agregar otro banco en PDF hay que escribir su lector en `lib/conversion.js`.
+Si las columnas de un banco no coinciden con el archivo, la página intenta detectar los encabezados automáticamente y lo avisa. Los PDF se leen con un lector propio para cada banco (Ciudad y Provincia). Para agregar otro banco en PDF hay que escribir su lector en `public/lib/conversion.js`.
 
-## Instalación en el servidor
+## Publicación en Vercel
 
-Requisitos: Node.js 20 o posterior, y nginx o Apache como proxy.
+1. Entrar a vercel.com con la cuenta de GitHub dueña del repositorio.
+2. **Add New → Project**, importar `extractos-odoo`.
+3. Dejar todo como viene: `vercel.json` ya indica que no hay compilación y que el sitio está en `public/`.
+4. **Deploy**. Queda en una dirección `*.vercel.app`; en **Settings → Domains** se puede agregar un dominio propio.
 
-```bash
-git clone <url-del-repo> /opt/extractos-odoo
-cd /opt/extractos-odoo
-npm install --omit=dev
-npm start            # escucha en 127.0.0.1:3000
-```
+Cada cambio que se guarde en la rama `main` se publica solo.
 
-Variables de entorno opcionales:
+También funciona en cualquier hosting de archivos estáticos (Cloudflare Pages, Netlify, nginx, Apache): basta con publicar la carpeta `public/`.
 
-| Variable | Por defecto | Para qué |
-|---|---|---|
-| `PORT` | 3000 | Puerto local |
-| `HOST` | 127.0.0.1 | Interfaz (dejarla local; el acceso es por el proxy) |
-| `LIMITE_MB` | 20 | Tamaño máximo del extracto |
-| `BANCOS_JSON` | config/bancos.json | Otro archivo de bancos |
+## Probar en la computadora
 
-Para dejarlo como servicio, en [despliegue/](despliegue/) hay ejemplos de configuración:
-
-- `extractos-odoo.service` para systemd
-- `nginx.conf`
-- `apache.conf`
-
-La app funciona en la raíz de un dominio o bajo una subruta, por ejemplo `/extractos/`.
-
-### Actualizar
+Cualquier servidor de archivos estáticos sirve, por ejemplo:
 
 ```bash
-cd /opt/extractos-odoo && git pull && npm install --omit=dev && sudo systemctl restart extractos-odoo
+npx serve public
 ```
 
-## Probar un extracto sin levantar el servidor
-
-```bash
-npm run probar -- "Credicoop" /ruta/al/extracto.xls
-```
+Abrir el archivo `index.html` directamente (doble clic) no funciona, porque el navegador no deja leer `config/bancos.json` desde el disco.
 
 ## Estructura
 
 | Archivo | Contenido |
 |---|---|
-| `server.js` | Servidor HTTP: `/api/bancos`, `/api/procesar`, `/api/descargar` y los archivos de `public/` |
-| `lib/conversion.js` | Lógica de conversión: columnas, fechas, importes, CUIT y lectores de PDF (copiada del Apps Script) |
-| `lib/lectores.js` | Lectura de .xls/.xlsx (SheetJS), .csv y .pdf (pdf.js), en memoria |
-| `lib/salida.js` | Arma los .xlsx de Odoo en memoria |
-| `public/` | Interfaz web |
-| `config/bancos.json` | Perfiles de bancos |
+| `public/index.html` | Página |
+| `public/estilos.css` | Diseño (paleta e Inter, según el diseño en Figma) |
+| `public/app.js` | Interfaz: carga del archivo, resultado y descargas |
+| `public/lib/conversion.js` | Lógica de conversión: columnas, fechas, importes, CUIT y lectores de PDF (copiada del Apps Script) |
+| `public/lib/lectores.js` | Lectura de .xls/.xlsx (SheetJS), .csv y .pdf (pdf.js) |
+| `public/lib/salida.js` | Arma los .xlsx de Odoo |
+| `public/config/bancos.json` | Perfiles de bancos |
+| `public/logo.svg` | Logo e ícono |
+| `vercel.json` | Configuración de Vercel y encabezados de seguridad |
+
+Librerías externas, cargadas desde CDN con versión fija: SheetJS 0.20.3 (cdn.sheetjs.com) y pdf.js 4.10.38 (jsDelivr).
