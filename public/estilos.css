@@ -243,12 +243,12 @@ select:focus, input[type=text]:focus { outline: 2px solid var(--titulo); outline
 .opcion:hover, .opcion:focus-visible {
   background: #B19DB0; border-color: #B19DB0; box-shadow: 0 16px 28px rgba(114, 75, 104, .32); outline: none;
 }
-.opcion:nth-child(1):hover, .opcion:nth-child(1):focus-visible { transform: perspective(700px) translateY(-6px) rotateY(6deg) rotate(-1.5deg); }
-.opcion:nth-child(2):hover, .opcion:nth-child(2):focus-visible { transform: perspective(700px) translateY(-6px) rotateY(-6deg) rotate(1.5deg); }
+/* Mismo movimiento que los demás botones: sube al pasar el mouse y se hunde al hacer clic */
+.opcion:hover, .opcion:focus-visible { transform: translateY(-3px); }
 .opcion:hover strong, .opcion:hover small, .opcion:hover em,
 .opcion:focus-visible strong, .opcion:focus-visible small, .opcion:focus-visible em { color: #FFFFFF; }
 .opcion:hover .opcion-icono, .opcion:focus-visible .opcion-icono { animation: rebote-icono .6s ease; }
-.opcion:active { transform: scale(.97); transition-duration: .08s; }
+.opcion:active { transform: translateY(0); box-shadow: 0 4px 10px rgba(114, 75, 104, .25); transition-duration: .06s; }
 
 .dialogo-pie { display: flex; justify-content: flex-end; margin-top: 16px; }
 .enlace {
