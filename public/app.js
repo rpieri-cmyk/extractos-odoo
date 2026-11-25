@@ -288,8 +288,6 @@
   const errorDescarga = t => { $('mensajeDescarga').textContent = sinPunto(t); };
   function abrirDescarga() {
     errorDescarga('');
-    const estado = $('estado').value.trim();
-    $('opcionEstado').textContent = estado ? 'Estado de cuenta: ' + estado : 'Falta completar el Estado de cuenta';
     dialogo.showModal();
     dialogo.focus(); // ninguna opción queda marcada hasta pasar el mouse o usar Tab
   }
